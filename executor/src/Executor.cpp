@@ -51,18 +51,18 @@ void ExecutorImpl::run()
         m_process,
         static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
         [this](QProcess::ProcessError err) {
-            std::cout << "Something going wrong..." << std::endl;
+            //std::cout << "Something going wrong..." << std::endl;
             emit finished(1);
         });
 
-    connect(
-        m_process, &QProcess::started, [this]() { std::cout << "QProcess::started" << std::endl; });
+    //connect(
+    //    m_process, &QProcess::started, [this]() { std::cout << "QProcess::started" << std::endl; });
 
     connect(m_process, &QProcess::readyReadStandardOutput, [this]() {
         emit output(m_process->readAllStandardOutput());
     });
 
-    std::cout << "start " << m_exec->getAppPath().string() << "... " << std::endl;
+    //std::cout << "start " << m_exec->getAppPath().string() << "... " << std::endl;
     QStringList args;
     for (const auto& arg : m_exec->getArgs())
     {
@@ -96,7 +96,7 @@ void ExecutorImpl::appendInput(const QString& input)
     assert("appendInput to nullptr process" && m_process != nullptr);
     if (!input.isEmpty())
     {
-        std::cout << "append input " << input.toStdString() << std::endl;
+        //std::cout << "append input " << input.toStdString() << std::endl;
         m_process->write(input.toLocal8Bit());
         m_process->write("\n");
     }
@@ -104,6 +104,7 @@ void ExecutorImpl::appendInput(const QString& input)
 
 void Executor::execute()
 {
+    m_output.clear();
     m_impl->run();
     m_impl->appendInput(QString::fromStdString(m_input));
 }

@@ -62,7 +62,7 @@ std::shared_ptr<Executable> Compiler::compile()
         }
         else
         {
-            std::cout << "Compilation was failed..." << std::endl;
+            //std::cout << "Compilation was failed..." << std::endl;
             return std::make_shared<Executable>();
         }
     }

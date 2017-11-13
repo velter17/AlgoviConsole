@@ -2,7 +2,7 @@
 
 #include "executor/Executor.hpp"
 #include "tester/Checker.hpp"
-#include "tester/Test.hpp"
+#include "test_archive/Test.hpp"
 
 namespace SOME_NAME {
 namespace Tester {
@@ -33,7 +33,7 @@ public:
     Tester(ExecutorPtr program, CheckerPtr checker = CheckerPtr());
 
     void setTimeLimit(std::uint64_t milliseconds);
-    void setTest(const Test& test);
+    void setTest(const TestArchive::Test& test);
 
     ResultPair test();
     ResultPair getResult() const;
@@ -41,7 +41,7 @@ public:
 private:
     ExecutorPtr m_program;
     CheckerPtr m_checker;
-    Test m_test;
+    TestArchive::Test m_test;
     std::uint64_t m_time_limit;
 };
 

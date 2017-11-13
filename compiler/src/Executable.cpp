@@ -30,14 +30,14 @@ Executable::~Executable()
 {
     if (m_file_delete_flag)
     {
-        std::cout << "remove " << m_file->string() << std::endl;
+        //std::cout << "remove " << m_file->string() << std::endl;
         boost::filesystem::remove(*m_file);
     }
 }
 
 Executable& Executable::setFile(boost::filesystem::path file)
 {
-    std::cout << "Executable set file" << std::endl;
+    //std::cout << "Executable set file" << std::endl;
     m_file = file;
     return *this;
 }
@@ -56,7 +56,7 @@ Executable& Executable::appendArgs(const std::vector<std::string>& args)
 
 Executable& Executable::deleteAfter(bool value)
 {
-    std::cout << "created " << m_file->string() << std::endl;
+    //std::cout << "created " << m_file->string() << std::endl;
     m_file_delete_flag = value;
     return *this;
 }

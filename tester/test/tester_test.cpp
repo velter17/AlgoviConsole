@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     auto checker_exec = std::make_shared<Tester::Checker>(checker_executable);
 
     Tester::Tester tester(code_exec, checker_exec);
-    tester.setTest(Tester::Test{"1 2", "3"});
+    tester.setTest(TestArchive::Test{"1 2", "3"});
 
     auto res = tester.test();
     std::cout << (res.result == Tester::Tester::ETestResult::OK ? "OK" : "Not OK") << ":"

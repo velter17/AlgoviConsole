@@ -13,7 +13,7 @@ SourceCode::SourceCode(const std::string& code, ELanguage lang)
     std::ofstream file(path.string());
     file << code;
     m_file = path;
-    std::cout << "created " << m_file.string() << std::endl;
+    //std::cout << "created " << m_file.string() << std::endl;
 }
 
 SourceCode::SourceCode(const boost::filesystem::path& file)
@@ -26,7 +26,7 @@ SourceCode::~SourceCode()
 {
     if (m_file_delete_flag)
     {
-        std::cout << "deteled " << m_file.string() << std::endl;
+        //std::cout << "deteled " << m_file.string() << std::endl;
         boost::filesystem::remove(m_file);
     }
 }

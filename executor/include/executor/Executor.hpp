@@ -21,7 +21,7 @@ public:
     virtual ~Executor() = default;
 
     virtual void execute();
-    std::int32_t wait();
+    virtual std::int32_t wait();
     
     void setInput(const std::string& input);
     void addInput(const std::string& input);

@@ -15,7 +15,7 @@ void Tester::setTimeLimit(std::uint64_t milliseconds)
     m_time_limit = milliseconds;
 }
 
-void Tester::setTest(const Test& test)
+void Tester::setTest(const TestArchive::Test& test)
 {
     m_test = test;
 }

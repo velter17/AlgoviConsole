@@ -11,7 +11,6 @@ set (CMAKE_CXX_STANDARD 11)
 
 set ( TESTER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Tester.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Checker.cpp
     )
 
@@ -23,6 +22,7 @@ target_link_libraries(${PROJECT_NAME}
     Boost::filesystem
     compiler
     executor
+    test_archive
     )
 
 target_include_directories(${PROJECT_NAME}

@@ -17,7 +17,7 @@ inline ELanguage extractLang(const boost::filesystem::path& file_path)
     };
 
     std::string extension = file_path.extension().string();
-    std::cout << "extension == " << extension << std::endl;
+    //std::cout << "extension == " << extension << std::endl;
 
     return s_map.find(extension) == s_map.end() ? ELanguage::BINARY : s_map[extension];
 }
