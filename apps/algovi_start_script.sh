@@ -3,12 +3,26 @@
 help_message="
  Algovi commands help message
 
- status [ folder ]                   actual status
+ help                                    produce help message
+ status [ folder ]                       actual status
  test
-      --init                         init structure for test archive
-      --create                       create test
-      --status                       status of test archive
- tester                              launch testing process\n";
+      --init [-i]                        init structure for test archive
+      --create [-c]                      create test
+      --status [-?]                      status of test archive
+      --remove [-r]                      remove test from archive
+
+ tester                                  launch testing process
+      --src [-s]                         source code to test
+      --test [-t] (default=all)          test on specific tests from archive
+      --checker [-c] (default=
+                        testlib_wcmp)    path to checker
+      --validator [-v]                   path to validator
+      --generator [-g]                   path to generator
+ 
+  visual
+     --src [-s]                          path to source code to test
+     --vinput [-i]                       path to source code 'how to reinterpret input'
+     --voutput [-o]                      path to source code for visualizer\n";
 
 
 main()
@@ -46,7 +60,12 @@ main()
         fi
     elif [[ ${args[0]} == tester ]]
     then
-        exec /opt/algovi/bin/algovi_tester ${args[@]:1}
+        if (( ${arg_size} > 1 && ${args[1]} == visual ))
+        then
+            exec /opt/algovi/bin/algovi_tester_visual ${args[@]:2}
+        else
+            exec /opt/algovi/bin/algovi_tester ${args[@]:1}
+        fi
     fi
 }
 

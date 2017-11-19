@@ -26,6 +26,7 @@ void CCommandVisualizer::visualize(QPainter* painter)
 
 void CCommandVisualizer::updateData(const std::string& str)
 {
+    qDebug () << "update data = " << str.data();
     std::vector<VizFunc> to_draw;
 
     std::stringstream stream(str);
@@ -101,15 +102,43 @@ CCommandVisualizer::VizFunc CCommandVisualizer::parseCmd(const std::string& s)
             painter->setPen(p);
         };
     }
-    else if (cmd == "width")
+    else if (cmd == "pen")
     {
-        int val;
-        stream >> val;
-        return [val](QPainter* painter) {
-            QPen p = painter->pen();
-            p.setWidth(val);
-            painter->setPen(p);
-        };
+        stream >> cmd;
+        if (cmd == "width")
+        {
+            int val;
+            stream >> val;
+            return [val](QPainter* painter) {
+                QPen p = painter->pen();
+                p.setWidth(val);
+                painter->setPen(p);
+            };
+        }
+        else if (cmd == "color")
+        {
+            int r, g, b;
+            stream >> r >> g >> b;
+            return [r, g, b](QPainter* painter) {
+                QPen p = painter->pen();
+                p.setColor(QColor(r, g, b));
+                painter->setPen(p);
+            };
+        }
+    }
+    else if (cmd == "brush")
+    {
+        stream >> cmd;
+        if (cmd == "color")
+        {
+            int r, g, b;
+            stream >> r >> g >> b;
+            return [r, g, b](QPainter* painter) {
+                QBrush br = painter->brush();
+                br.setColor(QColor(r, g, b));
+                painter->setBrush(br);
+            };
+        }
     }
 }
 

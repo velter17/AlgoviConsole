@@ -100,6 +100,7 @@ void ExecutorImpl::appendInput(const QString& input)
         m_process->write(input.toLocal8Bit());
         m_process->write("\n");
     }
+    m_process->closeWriteChannel();
 }
 
 void Executor::execute()

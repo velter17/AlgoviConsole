@@ -27,6 +27,7 @@ public:
     {
         ETestResult result;
         std::string detailed_message;
+        boost::optional<std::string> output;
     };
 
 public:
@@ -35,7 +36,7 @@ public:
     void setTimeLimit(std::uint64_t milliseconds);
     void setTest(const TestArchive::Test& test);
 
-    ResultPair test();
+    ResultPair test(bool save_output = false);
     ResultPair getResult() const;
 
 private:

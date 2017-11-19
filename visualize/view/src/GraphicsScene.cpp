@@ -1,5 +1,6 @@
 #include "visualize/view/GraphicsScene.hpp"
 #include <QPainter>
+#include <QGraphicsItem>
 #include <QDebug>
 
 namespace SOME_NAME {
@@ -16,6 +17,8 @@ CGraphicsScene::~CGraphicsScene()
 
 void CGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+    m_points.push_back(std::make_shared<CPoint>(event->scenePos()));
+    addItem(m_points.back().get());
     QGraphicsScene::mousePressEvent(event);
 }
 
@@ -24,9 +27,18 @@ void CGraphicsScene::addPainter(std::function<void(QPainter* painter)> func)
     m_draw_func = func;
 }
 
+std::vector<QPointF> CGraphicsScene::getPoints()
+{
+    std::vector<QPointF> points;
+    for(QGraphicsItem* item : this->items(Qt::SortOrder::AscendingOrder))
+    {
+        points.push_back(item->scenePos());
+    }
+    return points;
+}
+
 void CGraphicsScene::drawForeground(QPainter* painter, const QRectF& rect)
 {
-    qDebug () << "CGraphicsScene::drawForeground";
     QGraphicsScene::drawForeground(painter, rect);
     painter->save();
     painter->translate(QPointF(500, 500));

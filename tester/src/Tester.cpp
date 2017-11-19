@@ -20,7 +20,7 @@ void Tester::setTest(const TestArchive::Test& test)
     m_test = test;
 }
 
-Tester::ResultPair Tester::test()
+Tester::ResultPair Tester::test(bool save_output)
 {
     assert("Program is nullptr" && m_program != nullptr);
     m_program->setInput(m_test.input());
@@ -28,14 +28,20 @@ Tester::ResultPair Tester::test()
     auto program_exit_code = m_program->wait();
     if (program_exit_code == 0)
     {
-        auto custom_check = [this](const std::string& output) {
+        auto custom_check = [this, &save_output](const std::string& output) {
             if (output == m_test.output())
             {
-                return ResultPair{ETestResult::OK, "== is true"};
+                if (save_output)
+                    return ResultPair{ETestResult::OK, "== is true", output};
+                else
+                    return ResultPair{ETestResult::OK, "== is true", boost::none};
             }
             else
             {
-                return ResultPair{ETestResult::WrongAnswer, "== is false"};
+                if (save_output)
+                    return ResultPair{ETestResult::WrongAnswer, "== is false", output};
+                else
+                    return ResultPair{ETestResult::WrongAnswer, "== is false", boost::none};
             }
         };
 
@@ -47,11 +53,18 @@ Tester::ResultPair Tester::test()
             auto checker_exit_code = m_checker->wait();
             if (checker_exit_code == 0)
             {
-                return ResultPair{ETestResult::OK, m_checker->getOutput()};
+                if (save_output)
+                    return ResultPair{
+                        ETestResult::OK, m_checker->getOutput(), m_program->getOutput()};
+                else
+                    return ResultPair{ETestResult::OK, m_checker->getOutput()};
             }
             else
             {
-                return ResultPair{ETestResult::WrongAnswer, m_checker->getOutput()};
+                if (save_output)
+                    return ResultPair{ETestResult::WrongAnswer, m_checker->getOutput(), m_program->getOutput()};
+                else
+                    return ResultPair{ETestResult::WrongAnswer, m_checker->getOutput()};
             }
         }
         else
@@ -61,7 +74,7 @@ Tester::ResultPair Tester::test()
     }
     else
     {
-        return ResultPair{ETestResult::RuntimeError, "Runtime error was occured"};
+        return ResultPair{ETestResult::RuntimeError, "Runtime error was occured", boost::none};
     }
 }
 
