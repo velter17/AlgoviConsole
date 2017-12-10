@@ -3,19 +3,46 @@
 #include "compiler/SourceCode.hpp"
 #include "compiler/Executable.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Compiler {
+
+class CompilationError : public std::exception
+{
+public:
+    CompilationError(const std::string& file, const std::string& error)
+
+        : m_file(file)
+        , m_error(error)
+    {
+    }
+
+    const std::string& getFile() const
+    {
+        return m_file;
+    }
+
+    const char* what() const throw() override
+    {
+        return m_error.data();
+    }
+
+private:
+    std::string m_file;
+    std::string m_error;
+};
 
 class Compiler
 {
 public:
     Compiler(const SourceCode& source_code);
 
-    std::shared_ptr<Executable> compile();
+    bool isNeededCompilation();
 
+    std::shared_ptr<Executable> compile();
 private:
-    const SourceCode& m_code;
+    SourceCode m_code;
+    std::string m_error_message;
 };
 
 } // namespace Compiler
-} // namespace SOME_NAME
+} // namespace AlgoVi

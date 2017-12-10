@@ -3,7 +3,7 @@
 #include <QGraphicsItem>
 #include <QObject>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Visual {
 
 class CPoint
@@ -19,4 +19,4 @@ public:
 };
 
 } // namespace Visual
-} // namespace SOME_NAME
+} // namespace AlgoVi

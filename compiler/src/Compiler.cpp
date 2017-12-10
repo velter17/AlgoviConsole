@@ -4,7 +4,7 @@
 #include "filesystem/TempFile.hpp"
 #include "utils/LangExtractor.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Compiler {
 
 using path = boost::filesystem::path;
@@ -40,11 +40,17 @@ Compiler::Compiler(const SourceCode& code)
 {
 }
 
+bool Compiler::isNeededCompilation()
+{
+    return m_code.isUpdated();
+}
+
 std::shared_ptr<Executable> Compiler::compile()
 {
     auto lang = Utils::extractLang(m_code.getFilePath());
     if (lang == ELanguage::BINARY)
     {
+        m_code.update();
         return getExecutable<ELanguage::BINARY>(m_code.getFilePath(), boost::filesystem::path());
     }
     else
@@ -58,15 +64,15 @@ std::shared_ptr<Executable> Compiler::compile()
         {
             auto ret = getExecutable<ELanguage::BINARY>(bin_path, "");
             ret->deleteAfter();
+            m_code.update();
             return ret;
         }
         else
         {
-            //std::cout << "Compilation was failed..." << std::endl;
-            return std::make_shared<Executable>();
+            throw CompilationError(m_code.getFilePath().string(), compiler_exec.getError());
         }
     }
 }
 
 } // namespace Compiler
-} // namespace SOME_NAME
+} // namespace AlgoVi

@@ -5,7 +5,7 @@
 #include <map>
 #include "compiler/Language.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Compiler {
 namespace Utils {
 
@@ -29,4 +29,4 @@ inline ELanguage extractLang(const std::string& file_name)
 
 } // namespace Utils
 } // namespace Compiler
-} // namespace SOME_NAME
+} // namespace AlgoVi

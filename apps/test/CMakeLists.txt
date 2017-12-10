@@ -6,7 +6,7 @@ add_subdirectory(visual)
 
 set (CMAKE_CXX_STANDARD 11)
 
-find_package(Boost 1.63 COMPONENTS program_options filesystem REQUIRED)
+find_package(Boost 1.62 COMPONENTS program_options filesystem REQUIRED)
 
 add_executable(algovi_test_utils test_utils.cpp)
 

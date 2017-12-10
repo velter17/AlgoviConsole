@@ -3,7 +3,10 @@
 #include <boost/filesystem/path.hpp>
 #include "compiler/Language.hpp"
 
-namespace SOME_NAME {
+class QDateTime;
+class QFileInfo;
+
+namespace AlgoVi {
 namespace Compiler {
 
 class SourceCode
@@ -15,10 +18,15 @@ public:
 
     boost::filesystem::path getFilePath() const;
 
+    bool isUpdated();
+    void update();
+
 private:
     bool m_file_delete_flag;
     boost::filesystem::path m_file;
+    std::shared_ptr<QDateTime> m_update_time;
+    std::shared_ptr<QFileInfo> m_file_info;
 };
 
 } // namespace Compiler
-} // namespace SOME_NAME
+} // namespace AlgoVi

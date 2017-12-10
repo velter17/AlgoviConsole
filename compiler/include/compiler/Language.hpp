@@ -1,6 +1,6 @@
 #pragma once
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Compiler {
 
 enum class ELanguage
@@ -13,4 +13,4 @@ enum class ELanguage
 };
 
 }
-} // namespace SOME_NAME
+} // namespace AlgoVi

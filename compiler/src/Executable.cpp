@@ -2,7 +2,7 @@
 #include <boost/filesystem.hpp>
 #include <iostream>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Compiler {
 
 Executable::Executable(boost::optional<boost::filesystem::path> file)
@@ -82,4 +82,4 @@ const std::vector<std::string>& Executable::getArgs() const
 }
 
 } // namespace Compiler
-} // namespace SOME_NAME
+} // namespace AlgoVi

@@ -5,7 +5,7 @@
 #include "compiler/SourceCode.hpp"
 #include "tester/Tester.hpp"
 
-using namespace SOME_NAME;
+using namespace AlgoVi;
 
 int main(int argc, char** argv)
 {    

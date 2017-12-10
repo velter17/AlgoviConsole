@@ -1,15 +1,16 @@
 #include "tester/Tester.hpp"
-#include <boost/program_options.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
+#include <numeric>
 #include "compiler/Compiler.hpp"
-#include "test_archive/TestArchive.hpp"
-#include "termcolor/termcolor.hpp"
 #include "output_utils/PrintTable.hpp"
+#include "termcolor/termcolor.hpp"
+#include "test_archive/TestArchive.hpp"
 
 namespace po = boost::program_options;
-using namespace SOME_NAME;
+using namespace AlgoVi;
 
 std::vector<std::string> split(const std::string& s)
 {
@@ -90,15 +91,17 @@ std::vector<std::size_t> parseRange(const std::string& s)
     return ret;
 }
 
-
-int main(int argc, char** argv)
+int main(int argc, char** argv) try
 {
     po::options_description desc("Algovi tester");
-    desc.add_options()
-        ("help,h", "help message")
-        ("src,s", po::value<std::string>()->default_value("code.cpp"), "path to source code to test")
-        ("checker,c", po::value<std::string>()->default_value(
-            boost::filesystem::exists("checker.cpp") ? "checker.cpp" : "testlib_wcmp"), "path to checker")
+    desc.add_options()("help,h", "help message")
+        ("src,s", po::value<std::string>()->default_value("code.cpp"),
+            "path to source code to test")
+        ("checker,c",po::value<std::string>()
+            ->default_value(
+                boost::filesystem::exists("checker.cpp") ? "checker.cpp" : "testlib_wcmp"),
+            "path to checker")
+        ("time-limit", po::value<int32_t>()->default_value(2000), "time limit in milliseconds")
         ("test-folder,f", po::value<std::string>()->default_value("tests"), "path to test folder")
         ("test,t", po::value<std::string>()->default_value("all"), "test on specific tests")
         ("verbose", "detailed test report");
@@ -114,7 +117,7 @@ int main(int argc, char** argv)
         }
         po::notify(vm);
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
         std::cerr << e.what() << std::endl;
         return 1;
@@ -127,16 +130,18 @@ int main(int argc, char** argv)
         checker_path = (boost::filesystem::path("/opt/algovi/checkers/") / checker_path).string();
     }
     std::string test_folder = vm["test-folder"].as<std::string>();
+    int32_t time_limit = vm["time-limit"].as<int32_t>();
 
     auto code_executable = Compiler::Compiler(Compiler::SourceCode(code_path)).compile();
     auto checker_executable = Compiler::Compiler(Compiler::SourceCode(checker_path)).compile();
-    
+
     auto code_exec = std::make_shared<Executor::Executor>(code_executable);
     auto checker_exec = std::make_shared<Tester::Checker>(checker_executable);
 
     TestArchive::TestArchive tests(test_folder);
 
     Tester::Tester tester(code_exec, checker_exec);
+    tester.setTimeLimit(time_limit);
 
     std::vector<std::size_t> tests_to_test;
     if (vm["test"].as<std::string>() == "all")
@@ -151,15 +156,22 @@ int main(int argc, char** argv)
 
     bool verbose = vm.count("verbose");
 
-    
     std::cout << " Running...";
 
     Tester::Tester::ResultPair result;
+    std::int32_t min_time = std::numeric_limits<int32_t>::max();
+    std::int32_t max_time = std::numeric_limits<int32_t>::min();
+    std::int32_t av_time = 0;
     for (std::size_t i = 0; i < tests_to_test.size(); ++i)
     {
         std::cout << "\r Running on test " << tests_to_test[i] << " .. " << std::flush;
         tester.setTest(tests[tests_to_test[i] - 1]);
         result = tester.test(verbose);
+
+        min_time = std::min(min_time, result.execution_time);
+        max_time = std::max(max_time, result.execution_time);
+        av_time += result.execution_time;
+
         if (verbose)
         {
             std::cout << std::endl;
@@ -187,7 +199,7 @@ int main(int argc, char** argv)
                      Utils::Cell().setData(split(*result.output))},
                     {Utils::Cell().setData({"Time:"}).setCollspan(2).setColor(termcolor::bwhite),
                      Utils::Cell()
-                         .setData({std::to_string(rand() % 200 + 100) + "ms"})
+                         .setData({std::to_string(result.execution_time) + "ms"})
                          .setCollspan(2)},
                     {Utils::Cell()
                          .setData({result.result == Tester::Tester::ETestResult::OK
@@ -195,7 +207,8 @@ int main(int argc, char** argv)
                                        : "WrongAnswer"})
                          .setColor(
                              result.result == Tester::Tester::ETestResult::OK ? termcolor::bgreen
-                                                                              : termcolor::bred).setCollspan(2),
+                                                                              : termcolor::bred)
+                         .setCollspan(2),
                      Utils::Cell().setData({"Checker: " + result.detailed_message}).setCollspan(2)},
                 },
                 termcolor::white);
@@ -204,8 +217,8 @@ int main(int argc, char** argv)
         else if (result.result != Tester::Tester::ETestResult::OK)
         {
             std::cout << std::endl;
-            std::cout << termcolor::bred << "Wrong answer" << termcolor::reset << " on test " << i + 1 << std::flush;
-            //std::cout << "[ Checker message ]: " << res.detailed_message << std::endl;
+            std::cout << termcolor::bred << "Wrong answer" << termcolor::reset << " on test "
+                      << i + 1 << std::flush;
             break;
         }
     }
@@ -215,12 +228,14 @@ int main(int argc, char** argv)
         {{Utils::Cell().setData({"Verdict"}),
           Utils::Cell()
               .setData(
-                  {result.result == Tester::Tester::ETestResult::OK ? "Accepted" : "WrongAnswer"})
+                  {result.result == Tester::Tester::ETestResult::OK ? "Accepted" : "Wrong answer"})
               .setColor(
                   result.result == Tester::Tester::ETestResult::OK ? termcolor::bgreen
                                                                    : termcolor::bred)},
-         {Utils::Cell().setData({"Time"}),
-          Utils::Cell().setData({"128ms"}).setColor(termcolor::bblue)}});
+         {Utils::Cell().setData({"Max time"}),
+          Utils::Cell().setData({std::to_string(max_time) + "ms"}).setColor(termcolor::bblue)},
+         {Utils::Cell().setData({"Average"}),
+          Utils::Cell().setData({std::to_string(av_time / tests.size()) + "ms"})}});
     if (result.result != Tester::Tester::ETestResult::OK)
     {
         table.push_back({Utils::Cell().setData({"Checker message"}),
@@ -229,4 +244,17 @@ int main(int argc, char** argv)
     std::cout << Utils::getTable(table) << std::endl;
 
     return 0;
+}
+catch (const Compiler::CompilationError& e)
+{
+    std::cout << termcolor::bred << "Cannot compile " << e.getFile() << termcolor::reset
+              << std::endl;
+    std::cout << "Do you want to see compiler output? [ y / n ]" << std::endl;
+    std::string ans;
+    std::cin >> ans;
+    if (ans == "y")
+    {
+        std::cout << termcolor::red << e.what() << termcolor::reset << std::endl;
+    }
+    return 1;
 }

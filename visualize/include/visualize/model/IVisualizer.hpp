@@ -2,7 +2,7 @@
 
 class QPainter;
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Visual {
 
 class IVisualizer
@@ -12,4 +12,4 @@ public:
 };
 
 } // namespace Visual
-} // namespace SOME_NAME
+} // namespace AlgoVi

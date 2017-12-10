@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {    
-    SOME_NAME::Compiler::SourceCode code(R"(
+    AlgoVi::Compiler::SourceCode code(R"(
 #include <iostream>
 
 int sum(int a, int b) 
@@ -25,11 +25,11 @@ int main(int argc, char** argv)
     std::cout << sum(a, b) << std::endl;
     return 0;
 }
-)", SOME_NAME::Compiler::ELanguage::CPP);
+)", AlgoVi::Compiler::ELanguage::CPP);
 
-    auto executable = SOME_NAME::Compiler::Compiler(code).compile();
+    auto executable = AlgoVi::Compiler::Compiler(code).compile();
     executable->setArgs({"20", "-3"});
-    SOME_NAME::Executor::Executor exec(executable);
+    AlgoVi::Executor::Executor exec(executable);
     exec.addStartSlot([]() { std::cout << "main::started" << std::endl; });
     exec.addFinishedSlot([](std::int32_t exit_code) {
         std::cout << "main::finished with code " << exit_code << std::endl;

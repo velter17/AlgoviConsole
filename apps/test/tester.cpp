@@ -5,7 +5,7 @@
 #include "test_archive/TestArchive.hpp"
 
 namespace po = boost::program_options;
-using namespace SOME_NAME;
+using namespace AlgoVi;
 
 int main(int argc, char** argv)
 {

@@ -3,11 +3,13 @@
 #include "filesystem/FileIO.hpp"
 #include <iostream>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Tester {
 
 Checker::Checker(Executor::ExecutablePtr exec)
     : Executor::Executor(exec)
+    , m_input_file_delete(false)
+    , m_output_file_delete(false)
 {
     m_result_file = Filesystem::getTempFile(".txt");
     std::cout << "temp file is " << m_result_file->string() << std::endl;
@@ -101,4 +103,4 @@ Checker& Checker::setOutput(const std::string& output)
 }
 
 } // namespace Tester
-} // namespace SOME_NAME
+} // namespace AlgoVi

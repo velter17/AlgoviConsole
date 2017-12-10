@@ -3,7 +3,7 @@
 #include "executor/Executor.hpp"
 #include "test_archive/Test.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Tester {
 
 class Checker : public Executor::Executor
@@ -28,4 +28,4 @@ private:
 };
 
 } // namespace Tester
-} // namespace SOME_NAME
+} // namespace AlgoVi

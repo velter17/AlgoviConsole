@@ -5,7 +5,7 @@
 #include "output_utils/PrintTable.hpp"
 #include "test_archive/TestArchive.hpp"
 
-using namespace SOME_NAME;
+using namespace AlgoVi;
 
 std::vector<std::string> split(const std::string& s)
 {

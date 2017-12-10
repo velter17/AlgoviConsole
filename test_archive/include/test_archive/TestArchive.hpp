@@ -3,7 +3,7 @@
 #include <boost/filesystem/path.hpp>
 #include "test_archive/Test.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace TestArchive {
 
 class TestArchive
@@ -21,4 +21,4 @@ private:
 };
 
 } // namespace TestArchive
-} // namespace SOME_NAME
+} // namespace AlgoVi

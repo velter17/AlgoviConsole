@@ -3,7 +3,7 @@
 #include <boost/signals2/signal.hpp>
 #include "compiler/Executable.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Executor {
 
 using StartSignal = boost::signals2::signal<void()>;
@@ -22,12 +22,17 @@ public:
 
     virtual void execute();
     virtual std::int32_t wait();
+
+    void setExecutable(ExecutablePtr executable);
     
     void setInput(const std::string& input);
     void addInput(const std::string& input);
     const std::string& getOutput() const;
-    std::int32_t getExitCode() const;
+    const std::string& getError() const;
+    int32_t getExitCode() const;
     ExecutablePtr getExecutable() const;
+    int32_t getExecutionTime() const;
+    void setTimeLimit(int32_t time_limit);
 
     void addStartSlot(const StartSignal::slot_type& slot);
     void addFinishedSlot(const FinishedSignal::slot_type& slot);
@@ -35,7 +40,9 @@ public:
 
 protected:
     std::int32_t m_exit_code;
+    std::int32_t m_execution_time;
     std::string m_output;
+    std::string m_error;
     std::string m_input;
     StartSignal m_start_signal;
     FinishedSignal m_finished_signal;
@@ -45,4 +52,4 @@ protected:
 };
 
 } // namespace Executor
-} // namespace SOME_NAME
+} // namespace AlgoVi

@@ -3,18 +3,48 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <numeric>
-#include "output_utils/PrintTable.hpp"
 #include <thread>
-#include "test_archive/TestArchive.hpp"
 #include "compiler/Compiler.hpp"
 #include "executor/Executor.hpp"
-#include "visualize/view/MainWindow.hpp"
-#include "visualize/view/GraphicsScene.hpp"
-#include "visualize/model/CommandVisualizer.hpp"
-#include "filesystem/TempFile.hpp"
 #include "filesystem/FileIO.hpp"
+#include "filesystem/TempFile.hpp"
+#include "output_utils/PrintTable.hpp"
+#include "test_archive/TestArchive.hpp"
+#include "visualize/model/CommandVisualizer.hpp"
+#include "visualize/view/GraphicsScene.hpp"
+#include "visualize/view/MainWindow.hpp"
 
-using namespace SOME_NAME;
+using namespace AlgoVi;
+
+namespace {
+
+struct Application
+{
+    Compiler::Compiler compiler;
+    std::unique_ptr<Executor::Executor> executor;
+
+    Application(const boost::filesystem::path& source_code)
+        : compiler(source_code)
+    {
+    }
+
+    void recompile()
+    {
+        if (compiler.isNeededCompilation())
+        {
+            std::cout << "need compilation ! " << std::endl;
+            executor.reset(new Executor::Executor(compiler.compile()));
+        }
+    }
+
+    Executor::Executor* exe()
+    {
+        recompile();
+        return executor.get();
+    }
+};
+
+} // namespace
 
 int main(int argc, char** argv) try
 {
@@ -39,91 +69,118 @@ int main(int argc, char** argv) try
         return 1;
     }
 
-    auto visual_executable = Compiler::Compiler(Compiler::SourceCode(visualizer_code)).compile();
-    //visual_executable->setArgs(
-    //    {archive[test_num].inputFile()->string(), archive[test_num].outputFile()->string()});
-    auto visual_exec = std::make_shared<Executor::Executor>(visual_executable);
+    Application visual_app(visualizer_code);
+    Application serializer_app(serializer_code);
+    Application algo_app(algo_code);
 
-    auto serializer_executable = Compiler::Compiler(Compiler::SourceCode(serializer_code)).compile();
-    //serializer_executable->setArgs(
-    //    {archive[test_num].inputFile()->string(), archive[test_num].outputFile()->string()});
-    auto serializer_exec = std::make_shared<Executor::Executor>(serializer_executable);
+    QApplication app(argc, argv);
+    Visual::CMainWindow win;
+    Visual::CGraphicsScene scene;
+    win.setScene(&scene);
+    Visual::CCommandVisualizer cmd_visualizer;
+    scene.addPainter(
+        std::bind(&Visual::CCommandVisualizer::visualize, &cmd_visualizer, std::placeholders::_1));
+    win.show();
 
-    auto algo_executable =
-        Compiler::Compiler(Compiler::SourceCode(algo_code)).compile();
-    auto algo_exec = std::make_shared<Executor::Executor>(algo_executable);
+    std::string win_text;
+    QObject::connect(&win, &Visual::CMainWindow::textChanged, [&win_text](const QString& text) {
+        win_text = text.toStdString();
+    });
 
-    //visual_exec->execute();
-    //auto res = visual_exec->wait();
-    if (0 == 0)
-    {
-        QApplication app(argc, argv);
-        Visual::CMainWindow win;
-        Visual::CGraphicsScene scene;
-        win.setScene(&scene);
-        Visual::CCommandVisualizer visualizer;
-        scene.addPainter(
-            std::bind(&Visual::CCommandVisualizer::visualize, &visualizer, std::placeholders::_1));
-        //visualizer.updateData(visual_exec->getOutput());
-        win.show();
+    std::thread t([&]() {
+        auto temp_file_in = AlgoVi::Filesystem::getTempFile("txt");
+        auto temp_file_out = AlgoVi::Filesystem::getTempFile("txt");
+        auto temp_file_text = AlgoVi::Filesystem::getTempFile("txt");
 
-        std::cout << "HERE" << std::endl;
-        std::thread t([&]() {
-            auto temp_file_in = SOME_NAME::Filesystem::getTempFile("txt");
-            auto temp_file_out = SOME_NAME::Filesystem::getTempFile("txt");
+        while (true)
+        {
+            bool success = true;
 
-            std::cout << "HERE 2 " << std::endl;
-            while (true)
+            /* get points from scene */
+            auto points = scene.getPoints();
+            if (points.size() < 3)
             {
-                auto points = scene.getPoints();
-                if (points.size() < 3)
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(400));
-                    continue;
-                }
-                std::stringstream pt_input;
-                for (auto& p : points)
-                {
-                    pt_input << p.x() << " " << p.y() << "\n";
-                }
-                std::cout << "run serializer" << std::endl;
-                serializer_exec->setInput(pt_input.str());
-                serializer_exec->execute();
-                if (serializer_exec->wait() != 0)
-                {
-                    std::cout << "serializer error " << std::endl;
-                    break;
-                }
-                
-                algo_exec->setInput(serializer_exec->getOutput());
-                algo_exec->execute();
-                if (algo_exec->wait() != 0)
-                {
-                    std::cout << "algo error " << std::endl;
-                    break;
-                }
-
-                SOME_NAME::Filesystem::writeToFile(temp_file_in, serializer_exec->getOutput());
-                SOME_NAME::Filesystem::writeToFile(temp_file_out, algo_exec->getOutput());
-                visual_executable->setArgs({temp_file_in.string(), temp_file_out.string()});
-
-                visual_exec->execute();
-                if (visual_exec->wait() != 0)
-                {
-                    std::cout << "visualizer error " << std::endl;
-                    break;
-                }
-
-                visualizer.updateData(visual_exec->getOutput());
+                std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                continue;
             }
-        });
+            std::stringstream pt_input;
+            for (auto& p : points)
+            {
+                pt_input << p.x() << " " << p.y() << "\n";
+            }
 
-        app.exec();
-    }
-    else
-    {
-        //std::cout << "Cannon visualize, visualizer was finished with code " << res << std::endl;
-    }
+
+            /* prepare apps */
+            Executor::Executor* visualizer;
+            Executor::Executor* app;
+            Executor::Executor* serializer;
+            try
+            {
+                visualizer = visual_app.exe();
+                app = algo_app.exe();
+                serializer = serializer_app.exe();
+            }
+            catch(const Compiler::CompilationError& e)
+            {
+                std::cout << "Failed to recompile " << e.getFile() << std::endl;
+                success = false;
+            }
+
+            /* execute */
+            if (success)
+            {
+                serializer->setInput(pt_input.str());
+                AlgoVi::Filesystem::writeToFile(temp_file_text, win_text);
+                serializer->getExecutable()->setArgs({temp_file_text.string()});
+                serializer->execute();
+                if (serializer->wait() != 0)
+                {
+                    std::cout << "Serializer application failed" << std::endl;
+                    success = false;
+                }
+            }
+
+            if (success)
+            {
+                app->setInput(serializer->getOutput());
+                app->execute();
+                if (app->wait() != 0)
+                {
+                    std::cout << "Algorithm application failed" << std::endl;
+                    success = false;
+                }
+            }
+
+            if (success)
+            {
+                AlgoVi::Filesystem::writeToFile(temp_file_in, serializer->getOutput());
+                AlgoVi::Filesystem::writeToFile(temp_file_out, app->getOutput());
+                visualizer->getExecutable()->setArgs(
+                    {temp_file_in.string(), temp_file_out.string(), temp_file_text.string()});
+
+                visualizer->setInput(pt_input.str());
+                visualizer->execute();
+                if (visualizer->wait() != 0)
+                {
+                    std::cout << "Visualizer application failed" << std::endl;
+                    break;
+                }
+            }
+
+            if (success)
+            {
+                cmd_visualizer.updateData(visualizer->getOutput());
+                scene.update();
+            }
+            else
+            {
+                cmd_visualizer.updateData("");
+                scene.update();
+            }
+        }
+    });
+
+    app.exec();
 
     return 0;
 }

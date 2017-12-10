@@ -2,7 +2,7 @@
 #include <boost/filesystem.hpp>
 #include "filesystem/FileIO.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace TestArchive {
 
 std::string convert(std::istream& stream)
@@ -155,4 +155,4 @@ bool Test::isEqual(const Test& other) const
 }
 
 } // namespace TestArchive
-} // namespace SOME_NAME
+} // namespace AlgoVi

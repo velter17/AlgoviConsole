@@ -3,7 +3,7 @@
 #include <boost/filesystem/path.hpp>
 #include <fstream>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Filesystem {
 
 inline std::string readFromStream(std::istream&& stream)
@@ -37,4 +37,4 @@ inline void writeToFile(const boost::filesystem::path& path, const std::string& 
 }
 
 } // namespace Filesystem
-} // namespace SOME_NAME
+} // namespace AlgoVi

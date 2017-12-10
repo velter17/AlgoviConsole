@@ -3,7 +3,7 @@
 #include <boost/filesystem.hpp>
 #include "filesystem/FilesystemException.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Filesystem {
 
 inline std::vector<boost::filesystem::path> fileList(const boost::filesystem::path& folder)
@@ -45,4 +45,4 @@ inline boost::filesystem::path getAbsolutePath(const boost::filesystem::path& p)
 }
 
 } // namespace Filesystem
-} // namespace SOME_NAME
+} // namespace AlgoVi

@@ -60,7 +60,12 @@ main()
         fi
     elif [[ ${args[0]} == tester ]]
     then
-        if (( ${arg_size} > 1 && ${args[1]} == visual ))
+        tmp="none"
+        if (( ${arg_size} > 1 ))
+        then
+            tmp=${args[1]}
+        fi
+        if [[ ${tmp} == visual ]]
         then
             exec /opt/algovi/bin/algovi_tester_visual ${args[@]:2}
         else

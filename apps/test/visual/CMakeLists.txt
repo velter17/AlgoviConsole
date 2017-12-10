@@ -1,6 +1,6 @@
 set (CMAKE_CXX_STANDARD 11)
 
-find_package(Boost 1.63 COMPONENTS filesystem program_options REQUIRED)
+find_package(Boost 1.62 COMPONENTS filesystem program_options REQUIRED)
 
 add_executable(algovi_test_visual visual.cpp)
 
@@ -10,6 +10,7 @@ target_link_libraries(algovi_test_visual
     test_archive
     common-output_utils
     compiler
+    executor
     ${VISUAL_VIEW_NAME}
     ${VISUAL_MODEL_NAME}
     )

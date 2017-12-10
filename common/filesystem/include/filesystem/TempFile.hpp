@@ -2,7 +2,7 @@
 
 #include <boost/filesystem.hpp>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Filesystem {
 
 inline boost::filesystem::path getTempFile(const std::string& extension)
@@ -12,5 +12,5 @@ inline boost::filesystem::path getTempFile(const std::string& extension)
 }
 
 } // namespace Filesystem
-} // namespace SOME_NAME
+} // namespace AlgoVi
 

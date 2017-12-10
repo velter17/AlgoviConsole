@@ -3,7 +3,7 @@
 #include "filesystem/TempFile.hpp"
 #include "test_archive/Test.hpp"
 
-using namespace SOME_NAME;
+using namespace AlgoVi;
 
 int main()
 {

@@ -2,7 +2,7 @@
 #include <map>
 #include "filesystem/FSNavigation.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace TestArchive {
 
 TestArchive::TestArchive(const std::vector<Test>& tests)
@@ -59,4 +59,4 @@ std::size_t TestArchive::size() const
 }
 
 } // namespace TestArchive
-} // namespace SOME_NAME
+} // namespace AlgoVi

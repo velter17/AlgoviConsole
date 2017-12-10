@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project (tester)
 
-find_package(Boost 1.63 COMPONENTS filesystem REQUIRED)
+find_package(Boost 1.62 COMPONENTS filesystem REQUIRED)
 
 set ( CMAKE_AUTOMOC ON )
 #set ( CMAKE_AUTOUIC ON )

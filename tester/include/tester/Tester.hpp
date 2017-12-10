@@ -4,7 +4,7 @@
 #include "tester/Checker.hpp"
 #include "test_archive/Test.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Tester {
 
 class Tester
@@ -27,6 +27,7 @@ public:
     {
         ETestResult result;
         std::string detailed_message;
+        int32_t execution_time;
         boost::optional<std::string> output;
     };
 
@@ -47,4 +48,4 @@ private:
 };
 
 } // namespace Tester
-} // namespace SOME_NAME
+} // namespace AlgoVi

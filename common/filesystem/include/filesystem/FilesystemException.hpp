@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Filesystem {
 
 class FilesystemException : public std::runtime_error
@@ -24,4 +24,4 @@ inline char const* FilesystemException::what() const throw()
 }
 
 } // namespace Filesystem
-} // namespace SOME_NAME
+} // namespace AlgoVi

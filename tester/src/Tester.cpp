@@ -1,12 +1,12 @@
 #include "tester/Tester.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Tester {
 
 Tester::Tester(Tester::ExecutorPtr program, Tester::CheckerPtr checker)
     : m_program(program)
     , m_checker(checker)
-    , m_time_limit(10 * 100)
+    , m_time_limit(std::numeric_limits<uint64_t>::max())
 {
 }
 
@@ -24,6 +24,7 @@ Tester::ResultPair Tester::test(bool save_output)
 {
     assert("Program is nullptr" && m_program != nullptr);
     m_program->setInput(m_test.input());
+    m_program->setTimeLimit(m_time_limit);
     m_program->execute();
     auto program_exit_code = m_program->wait();
     if (program_exit_code == 0)
@@ -32,16 +33,16 @@ Tester::ResultPair Tester::test(bool save_output)
             if (output == m_test.output())
             {
                 if (save_output)
-                    return ResultPair{ETestResult::OK, "== is true", output};
+                    return ResultPair{ETestResult::OK, "== is true", 0, output};
                 else
-                    return ResultPair{ETestResult::OK, "== is true", boost::none};
+                    return ResultPair{ETestResult::OK, "== is true", 0, boost::none};
             }
             else
             {
                 if (save_output)
-                    return ResultPair{ETestResult::WrongAnswer, "== is false", output};
+                    return ResultPair{ETestResult::WrongAnswer, "== is false", 0, output};
                 else
-                    return ResultPair{ETestResult::WrongAnswer, "== is false", boost::none};
+                    return ResultPair{ETestResult::WrongAnswer, "== is false", 0, boost::none};
             }
         };
 
@@ -54,17 +55,25 @@ Tester::ResultPair Tester::test(bool save_output)
             if (checker_exit_code == 0)
             {
                 if (save_output)
-                    return ResultPair{
-                        ETestResult::OK, m_checker->getOutput(), m_program->getOutput()};
+                    return ResultPair{ETestResult::OK,
+                                      m_checker->getOutput(),
+                                      m_program->getExecutionTime(),
+                                      m_program->getOutput()};
                 else
-                    return ResultPair{ETestResult::OK, m_checker->getOutput()};
+                    return ResultPair{
+                        ETestResult::OK, m_checker->getOutput(), m_program->getExecutionTime()};
             }
             else
             {
                 if (save_output)
-                    return ResultPair{ETestResult::WrongAnswer, m_checker->getOutput(), m_program->getOutput()};
+                    return ResultPair{ETestResult::WrongAnswer,
+                                      m_checker->getOutput(),
+                                      m_program->getExecutionTime(),
+                                      m_program->getOutput()};
                 else
-                    return ResultPair{ETestResult::WrongAnswer, m_checker->getOutput()};
+                    return ResultPair{ETestResult::WrongAnswer,
+                                      m_checker->getOutput(),
+                                      m_program->getExecutionTime()};
             }
         }
         else
@@ -74,9 +83,9 @@ Tester::ResultPair Tester::test(bool save_output)
     }
     else
     {
-        return ResultPair{ETestResult::RuntimeError, "Runtime error was occured", boost::none};
+        return ResultPair{ETestResult::RuntimeError, "Runtime error was occured", 0, boost::none};
     }
 }
 
 } // namespace Tester
-} // namespace SOME_NAME
+} // namespace AlgoVi

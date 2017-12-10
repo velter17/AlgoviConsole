@@ -4,7 +4,7 @@ project (algovi_tester_visual)
 
 set (CMAKE_CXX_STANDARD 11)
 
-find_package(Boost 1.63 COMPONENTS program_options REQUIRED)
+find_package(Boost 1.62 COMPONENTS program_options REQUIRED)
 
 add_executable( algovi_tester_visual tester_visual.cpp )
 

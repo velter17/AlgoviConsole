@@ -2,8 +2,9 @@
 #include <QPainter>
 #include <QDebug>
 #include <sstream>
+#include <cmath>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Visual {
 
 CCommandVisualizer::CCommandVisualizer()
@@ -26,7 +27,6 @@ void CCommandVisualizer::visualize(QPainter* painter)
 
 void CCommandVisualizer::updateData(const std::string& str)
 {
-    qDebug () << "update data = " << str.data();
     std::vector<VizFunc> to_draw;
 
     std::stringstream stream(str);
@@ -75,7 +75,7 @@ CCommandVisualizer::VizFunc CCommandVisualizer::parseCmd(const std::string& s)
     {
         double x, y, rx, ry, angle;
         stream >> x >> y >> rx >> ry >> angle;
-        angle = angle / acos(-1) * 180.0;
+        angle = angle / std::acos(-1) * 180.0;
         return [x, y, rx, ry, angle](QPainter* painter) {
             painter->save();
             painter->translate(QPointF(x, y));
@@ -143,4 +143,4 @@ CCommandVisualizer::VizFunc CCommandVisualizer::parseCmd(const std::string& s)
 }
 
 } // namespace Visual
-} // namespace SOME_NAME
+} // namespace AlgoVi

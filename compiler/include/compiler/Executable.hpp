@@ -3,7 +3,7 @@
 #include <boost/optional.hpp>
 #include <boost/filesystem/path.hpp>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Compiler {
 
 class Executable
@@ -31,4 +31,4 @@ private:
 };
 
 } // namespace Compiler
-} // namespace SOME_NAME
+} // namespace AlgoVi

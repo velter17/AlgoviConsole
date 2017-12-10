@@ -6,7 +6,7 @@
 #include <vector>
 #include "visualize/model/IVisualizer.hpp"
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Visual {
 
 class CCommandVisualizer : public IVisualizer
@@ -29,4 +29,4 @@ private:
 };
 
 } // namespace Visual
-} // namespace SOME_NAME
+} // namespace AlgoVi

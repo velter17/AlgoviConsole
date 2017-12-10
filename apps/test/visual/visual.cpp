@@ -11,7 +11,7 @@
 #include "visualize/view/GraphicsScene.hpp"
 #include "visualize/model/CommandVisualizer.hpp"
 
-using namespace SOME_NAME;
+using namespace AlgoVi;
 
 int main(int argc, char** argv) try
 {

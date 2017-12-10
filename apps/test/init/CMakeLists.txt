@@ -4,7 +4,7 @@ project (algovi_test_init)
 
 set (CMAKE_CXX_STANDARD 11)
 
-find_package(Boost 1.63 COMPONENTS filesystem program_options REQUIRED)
+find_package(Boost 1.62 COMPONENTS filesystem program_options REQUIRED)
 
 add_executable( algovi_test_init init.cpp)
 

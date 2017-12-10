@@ -75,6 +75,6 @@ if subprocess.call(makeArgs, cwd=buildPath) != 0:
     sys.exit(1)
 else:
     if args.install:
-        if os.path.exists("/usr/local/bin/algovi/"):
+        if not os.path.exists("/usr/local/bin/algovi"):
             os.symlink("/opt/algovi/bin/algovi_start_script.sh", "/usr/local/bin/algovi")
         shutil.copyfile("/opt/algovi/bin/algovi_complation_script.sh", "/etc/bash_completion.d/algovi_complation.sh")

@@ -24,7 +24,7 @@ namespace {
 
 } // anonymous namespace
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Utils {
 
 enum class EAlign
@@ -344,5 +344,5 @@ inline std::string getTable(
 }
 
 } // namespace Utils
-} // namespace SOME_NAME
+} // namespace AlgoVi
 

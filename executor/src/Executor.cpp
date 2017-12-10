@@ -2,9 +2,11 @@
 #include <QProcess>
 #include <QObject>
 #include <iostream>
+#include <thread>
 #include <boost/asio/io_service.hpp>
+#include <boost/timer/timer.hpp>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace Executor {
 
 class ExecutorImpl : public QObject
@@ -15,20 +17,28 @@ public:
     void run();
     void wait();
     void appendInput(const QString& input);
+    void setTimeLimit(int32_t time_limit);
+    void terminate();
 
 signals:
     void started();
-    void finished(std::int32_t);
+    void finished(std::int32_t, int32_t);
     void error(const QString& str);
     void output(const QString& out);
 
 private:
+    void checkTime();
+
+private:
     QProcess* m_process;
+    int32_t m_time_limit;
+    boost::timer::cpu_timer m_timer;
     Executor::ExecutablePtr m_exec;
 };
 
 ExecutorImpl::ExecutorImpl(Executor::ExecutablePtr exec)
-    : m_exec(exec)
+    : m_time_limit(0)
+    , m_exec(exec)
 {
 }
 
@@ -43,7 +53,12 @@ void ExecutorImpl::run()
         m_process,
         static_cast<void (QProcess::*)(std::int32_t)>(&QProcess::finished),
         [this](std::int32_t exit_code) {
-            emit finished(exit_code);
+            boost::timer::cpu_times const elapsed_times(m_timer.elapsed());
+            boost::timer::nanosecond_type const elapsed(elapsed_times.system
+                        + elapsed_times.user);
+            auto exec_time = elapsed / 1000000;
+            m_timer.stop();
+            emit finished(exit_code, exec_time);
             m_process->deleteLater();
         });
 
@@ -51,23 +66,31 @@ void ExecutorImpl::run()
         m_process,
         static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
         [this](QProcess::ProcessError err) {
-            //std::cout << "Something going wrong..." << std::endl;
-            emit finished(1);
+            m_timer.stop();
+            emit finished(1, -1);
         });
-
-    //connect(
-    //    m_process, &QProcess::started, [this]() { std::cout << "QProcess::started" << std::endl; });
 
     connect(m_process, &QProcess::readyReadStandardOutput, [this]() {
         emit output(m_process->readAllStandardOutput());
     });
+    connect(m_process, &QProcess::readyReadStandardError, [this]() {
+        emit error(m_process->readAllStandardError());
+    });
 
-    //std::cout << "start " << m_exec->getAppPath().string() << "... " << std::endl;
     QStringList args;
     for (const auto& arg : m_exec->getArgs())
     {
         args.append(QString::fromStdString(arg));
     }
+
+    connect(m_process, &QProcess::started, [this]() {
+        if (m_time_limit > 0)
+        {
+            m_timer.start();
+            std::thread(std::bind(&ExecutorImpl::checkTime, this)).detach();
+        }
+    });
+
     m_process->start(QString::fromStdString(m_exec->getAppPath().string()), args);
 }
 
@@ -76,19 +99,30 @@ void ExecutorImpl::wait()
     m_process->waitForFinished();
 }
 
-Executor::Executor(Executor::ExecutablePtr exec)
-    : m_executable(exec)
-    , m_impl(new ExecutorImpl(exec))
+void ExecutorImpl::terminate()
 {
-    QObject::connect(m_impl.get(), &ExecutorImpl::started, [this]() { m_start_signal(); });
-    QObject::connect(m_impl.get(), &ExecutorImpl::finished, [this](std::int32_t exit_code) {
-        m_exit_code = exit_code;
-        m_finished_signal(exit_code);
-    });
-    QObject::connect(m_impl.get(), &ExecutorImpl::output, [this](const QString& str) {
-        m_output_signal(str.toStdString());
-        m_output += str.toStdString();
-    });
+    m_process->terminate();
+}
+
+void ExecutorImpl::checkTime()
+{
+    while (!m_timer.is_stopped())
+    {
+        boost::timer::cpu_times const elapsed_times(m_timer.elapsed());
+        boost::timer::nanosecond_type const elapsed(elapsed_times.system + elapsed_times.user);
+        auto exec_time = elapsed / 1000000;
+        if (exec_time >= m_time_limit)
+        {
+            std::cout << "exec_time = " << exec_time << " -> break " << std::endl;
+            terminate();
+            break;
+        }
+        else
+        {
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(std::min(200L, m_time_limit - exec_time)));
+        }
+    }
 }
 
 void ExecutorImpl::appendInput(const QString& input)
@@ -103,9 +137,38 @@ void ExecutorImpl::appendInput(const QString& input)
     m_process->closeWriteChannel();
 }
 
+void ExecutorImpl::setTimeLimit(int32_t time_limit)
+{
+    m_time_limit = time_limit;
+}
+
+Executor::Executor(Executor::ExecutablePtr exec)
+    : m_executable(exec)
+    , m_impl(new ExecutorImpl(exec))
+{
+    QObject::connect(m_impl.get(), &ExecutorImpl::started, [this]() { m_start_signal(); });
+    QObject::connect(
+        m_impl.get(),
+        &ExecutorImpl::finished,
+        [this](std::int32_t exit_code, int32_t execution_time) {
+            m_exit_code = exit_code;
+            m_execution_time = execution_time;
+            m_finished_signal(exit_code);
+        });
+    QObject::connect(m_impl.get(), &ExecutorImpl::output, [this](const QString& str) {
+        m_output_signal(str.toStdString());
+        m_output += str.toStdString();
+    });
+    QObject::connect(m_impl.get(), &ExecutorImpl::error, [this](const QString& str) {
+        // m_error_signal(str.toString());
+        m_error += str.toStdString();
+    });
+}
+
 void Executor::execute()
 {
     m_output.clear();
+    m_error.clear();
     m_impl->run();
     m_impl->appendInput(QString::fromStdString(m_input));
 }
@@ -116,14 +179,29 @@ std::int32_t Executor::wait()
     return m_exit_code;
 }
 
-std::int32_t Executor::getExitCode() const
+int32_t Executor::getExitCode() const
 {
     return m_exit_code;
+}
+
+void Executor::setTimeLimit(int32_t time_limit)
+{
+    m_impl->setTimeLimit(time_limit);
 }
 
 Executor::ExecutablePtr Executor::getExecutable() const
 {
     return m_executable;
+}
+
+void Executor::setExecutable(ExecutablePtr executable)
+{
+    m_impl.reset(new ExecutorImpl(executable));
+}
+
+int32_t Executor::getExecutionTime() const
+{
+    return m_execution_time;
 }
 
 void Executor::setInput(const std::string& input)
@@ -142,6 +220,11 @@ const std::string& Executor::getOutput() const
     return m_output;
 }
 
+const std::string& Executor::getError() const
+{
+    return m_error;
+}
+
 void Executor::addStartSlot(const StartSignal::slot_type& slot)
 {
     m_start_signal.connect(slot);
@@ -158,4 +241,4 @@ void Executor::addFinishedSlot(const FinishedSignal::slot_type& slot)
 }
 
 } // namespace Executor
-} // namespace SOME_NAME
+} // namespace AlgoVi

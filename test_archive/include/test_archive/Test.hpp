@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream>
 
-namespace SOME_NAME {
+namespace AlgoVi {
 namespace TestArchive {
 
 class Test
@@ -46,4 +46,4 @@ private:
 };
 
 } // namespace TestArchive
-} // namespace SOME_NAME
+} // namespace AlgoVi
