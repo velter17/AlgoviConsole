@@ -1,5 +1,6 @@
 #include "test_archive/TestArchive.hpp"
 #include <map>
+#include <algorithm>
 #include "filesystem/FSNavigation.hpp"
 
 namespace AlgoVi {
@@ -38,7 +39,10 @@ TestArchive::TestArchive(const boost::filesystem::path& test_folder)
     {
         if (itr.second.first && itr.second.second)
         {
-            m_tests.push_back(Test(itr.second.first.get(), itr.second.second.get(), true, false));
+            m_tests.emplace_back(
+                itr.second.first.get(),
+                itr.second.second.get());
+                //ETestType::KeepInFiles);
         }
     }
 }
@@ -56,6 +60,45 @@ Test& TestArchive::operator[](std::size_t i)
 std::size_t TestArchive::size() const
 {
     return m_tests.size();
+}
+
+void TestArchive::clear()
+{
+    m_removed_list.clear();
+    for (std::size_t i = 0; i < size(); ++i)
+    {
+        m_removed_list.push_back(i);
+    }
+    shrink();
+}
+
+void TestArchive::shrink()
+{
+    if (m_removed_list.empty())
+    {
+        return;
+    }
+
+    std::sort(m_removed_list.begin(), m_removed_list.end());
+
+    std::vector<Test> new_tests;
+    std::size_t j = 0;
+    for (std::size_t i = 0; i < size(); ++i)
+    {
+        bool rm = j < m_removed_list.size() && m_removed_list[j] == i;
+        if (rm)
+        {
+            m_tests[i].remove();
+            ++j;
+        }
+        else
+        {
+            new_tests.push_back(m_tests[i]);
+            new_tests.back().move(new_tests.size() + 1);
+        }
+    }
+
+    m_tests.swap(new_tests);
 }
 
 } // namespace TestArchive

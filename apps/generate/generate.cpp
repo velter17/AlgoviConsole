@@ -7,6 +7,7 @@
 #include "settings_reader/Settings.hpp"
 
 using namespace AlgoVi;
+namespace po = boost::program_options;
 
 std::vector<std::string> split(const std::string& s)
 {
@@ -89,17 +90,64 @@ std::vector<std::size_t> parseRange(const std::string& s)
 int main(int argc, char** argv) try
 {
     SettingsReader::CSettings settings(boost::filesystem::current_path() / ".settings.ini");
-    if (settings.get<std::string>("test_folder") != "tests")
+    std::string code_path = "code.cpp";
+    std::string generator_path = "generator.cpp";
+    std::vector<std::string> args;
+    std::uint32_t tests_to_generate;
+    std::string destination_test_folder = settings.get<std::string>("test_folder");
+
+    po::options_description desc("Algovi tester");
+    desc.add_options()
+        ("help,h", "help message")
+        ("src,s", po::value<std::string>(&code_path)->default_value(code_path), "correct solution code")
+        ("generator,g", po::value<std::string>(&generator_path)->default_value(generator_path), "generator code path")
+        ("arg,a", po::value<std::vector<std::string>>(&args), "arguments for generator")
+        ("tests,t", po::value<std::uint32_t>(&tests_to_generate)->default_value(1), "tests to generate")
+        ("dest,d", po::value<std::string>(&destination_test_folder)->default_value(destination_test_folder),
+             "switch into test folder and save test");
+
+    po::variables_map vm;
+    try
     {
-        std::cout << " [ ! ] Your test directory is '" << settings.get<std::string>("test_folder")
-                  << "'" << std::endl;
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+        po::notify(vm);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
     }
 
-    TestArchive::TestArchive archive(
-        boost::filesystem::current_path() / settings.get<std::string>("test_folder"));
-    if (archive.size() == 0)
+    TestArchive::TestArchive archive(boost::filesystem::current_path() / destination_test_folder);
+    if (archive.size() != 0)
     {
-        std::cout << "Test archive is empty\n";
+        std::cout << "Test folder '" << destination_test_folder << "' is not empty\n";
+        std::cout << " 1 - append generated tests" << std::endl;
+        std::cout << " 2 - clear folder" << std::endl;
+        std::cout << " 3 - cancel" << std::endl;
+        std::string ans;
+        std::cin >> ans;
+        if (ans.length() == 1 && ans[0] >= '1' && ans[0] <= '2')
+        {
+            if (ans == "2")
+            {
+                if (destination_test_folder == "tests")
+                {
+                    std::cout << "'tests' folder shouldn't been cleared that way. Please, use 'test --del' instead" << std::endl;
+                    return 1;
+                }
+                archive.clear();
+            }
+        }
+        else
+        {
+            std::cout << " [ Canceled ] " << std::endl;
+            return 0;
+        }
         return 1;
     }
 

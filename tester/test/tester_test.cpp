@@ -4,6 +4,7 @@
 #include "compiler/Compiler.hpp"
 #include "compiler/SourceCode.hpp"
 #include "tester/Tester.hpp"
+#include "test_archive/TestData.hpp"
 
 using namespace AlgoVi;
 
@@ -60,7 +61,8 @@ int main(int argc, char** argv)
     auto checker_exec = std::make_shared<Tester::Checker>(checker_executable);
 
     Tester::Tester tester(code_exec, checker_exec);
-    tester.setTest(TestArchive::Test{"1 2", "3"});
+    auto test = TestArchive::TestData{"1, 2", "3"};
+    tester.setTest(&test);
 
     auto res = tester.test();
     std::cout << (res.result == Tester::Tester::ETestResult::OK ? "OK" : "Not OK") << ":"

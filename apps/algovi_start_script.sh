@@ -45,6 +45,12 @@ main()
         elif [[ ${args[1]} == visual ]]
         then
             /opt/algovi/bin/algovi_test_visual ${args[@]:2}
+        elif [[ ${args[1]} == switch ]]
+        then
+            /opt/algovi/bin/algovi_test_switch ${args[@]:2}
+        elif [[ ${args[1]} == rm ]]
+        then
+            /opt/algovi/bin/algovi_test_rm ${args[@]:2}
         else
             declare -A test_func_map=(["-r"]="remove" ["--remove"]="remove"
                                       ["-a"]="add"    ["--add"]="add"

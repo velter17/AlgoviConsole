@@ -102,12 +102,25 @@ Test& Test::setOutput(const std::string& output)
     return *this;
 }*/
 
+void Test::remove()
+{
+    m_from_files_flag = false;
+}
+
 Test& Test::moveToFiles(const boost::filesystem::path& input, const boost::filesystem::path& output)
 {
+    if (m_input_file && m_output_file)
+    {
+        boost::filesystem::rename(m_input_file.get(), input);
+        boost::filesystem::rename(m_output_file.get(), output);
+    }
+    else
+    {
+        m_modified_flag = true;
+    }
     m_input_file = input;
     m_output_file = output;
     m_from_files_flag = true;
-    m_modified_flag = true;
     return *this;
 }
 

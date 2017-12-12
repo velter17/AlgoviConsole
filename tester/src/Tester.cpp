@@ -15,7 +15,7 @@ void Tester::setTimeLimit(std::uint64_t milliseconds)
     m_time_limit = milliseconds;
 }
 
-void Tester::setTest(const TestArchive::Test& test)
+void Tester::setTest(TestArchive::ITest* test)
 {
     m_test = test;
 }
@@ -23,14 +23,15 @@ void Tester::setTest(const TestArchive::Test& test)
 Tester::ResultPair Tester::test(bool save_output)
 {
     assert("Program is nullptr" && m_program != nullptr);
-    m_program->setInput(m_test.input());
+    assert("No test" && m_test);
+    m_program->setInput(m_test->input());
     m_program->setTimeLimit(m_time_limit);
     m_program->execute();
     auto program_exit_code = m_program->wait();
     if (program_exit_code == 0)
     {
         auto custom_check = [this, &save_output](const std::string& output) {
-            if (output == m_test.output())
+            if (output == m_test->output())
             {
                 if (save_output)
                     return ResultPair{ETestResult::OK, "== is true", 0, output};

@@ -7,8 +7,9 @@ find_package(Boost 1.62 COMPONENTS filesystem REQUIRED)
 set (CMAKE_CXX_STANDARD 11)
 
 set ( TEST_ARCHIVE_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TestArchive.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TestFromFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TestData.cpp
     )
 
 add_library (${PROJECT_NAME}

@@ -4,6 +4,7 @@
 #include "test_archive/TestArchive.hpp"
 #include "filesystem/FSNavigation.hpp"
 #include "termcolor/termcolor.hpp"
+#include "settings_reader/Settings.hpp"
 
 namespace po = boost::program_options;
 using namespace AlgoVi;
@@ -17,9 +18,13 @@ int main(int argc, char** argv)
     }
     auto path =
         Filesystem::getAbsolutePath(argc == 2 ? argv[1] : boost::filesystem::current_path());
-    if (boost::filesystem::exists(path / "tests"))
+    std::string test_folder =
+        SettingsReader::CSettings(boost::filesystem::current_path() / ".settings.ini")
+            .get<std::string>("test_folder");
+    std::cout << "Your current test folder is '" << test_folder << "'" << std::endl;
+    if (boost::filesystem::exists(path / test_folder))
     {
-        TestArchive::TestArchive archive(path / "tests");
+        TestArchive::TestArchive archive(path / test_folder);
         std::stringstream x;
         std::cout << "Test archive size is " << archive.size() << std::endl;
     }

@@ -45,7 +45,7 @@ int main(int argc, char** argv) try
 
     auto visual_executable = Compiler::Compiler(Compiler::SourceCode(visualizer_code)).compile();
     visual_executable->setArgs(
-        {archive[test_num].inputFile()->string(), archive[test_num].outputFile()->string()});
+        {archive[test_num].inputFile().string(), archive[test_num].outputFile().string()});
     auto visual_exec = std::make_shared<Executor::Executor>(visual_executable);
 
     visual_exec->execute();

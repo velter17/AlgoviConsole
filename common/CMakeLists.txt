@@ -1,2 +1,3 @@
 add_subdirectory(filesystem)
 add_subdirectory(output_utils)
+add_subdirectory(settings_reader)

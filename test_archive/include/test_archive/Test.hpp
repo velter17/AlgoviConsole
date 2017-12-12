@@ -21,6 +21,7 @@ public:
         bool read_from_files = true);
     ~Test();
 
+    void remove();
     Test& moveToFiles(const boost::filesystem::path& input, const boost::filesystem::path& output);
     //Test& setInput(const std::string& input);
     //Test& setOutput(const std::string& output);

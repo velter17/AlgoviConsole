@@ -1,6 +1,8 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 #include <iostream>
+#include <fstream>
+#include "settings_reader/Settings.hpp"
 
 namespace po = boost::program_options;
 
@@ -36,7 +38,11 @@ int main(int argc, char** argv)
     else
     {
         boost::filesystem::create_directory(current_folder / "tests");
+        std::ofstream stream((current_folder / ".settings.ini").string());
+        AlgoVi::SettingsReader::CSettings settings(current_folder / ".settings.ini");
+        settings.set("test_folder", "tests");
         std::cout << "Empty 'tests/' directory was created" << std::endl;
+        std::cout << "Test folder switched into 'tests'" << std::endl;
     }
 
     return 0;

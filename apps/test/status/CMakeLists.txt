@@ -13,6 +13,7 @@ target_link_libraries(algovi_test_status
     test_archive
     common-filesystem
     termcolor
+    common-settings_reader
     )
 
 install (TARGETS

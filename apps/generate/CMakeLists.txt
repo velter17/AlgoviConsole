@@ -2,9 +2,9 @@ set (CMAKE_CXX_STANDARD 11)
 
 find_package(Boost 1.62 COMPONENTS filesystem program_options REQUIRED)
 
-add_executable(algovi_test print.cpp)
+add_executable(algovi_generate generate.cpp)
 
-target_link_libraries(algovi_test
+target_link_libraries(algovi_generate
     Boost::program_options
     Boost::filesystem
     test_archive
@@ -13,6 +13,6 @@ target_link_libraries(algovi_test
     )
 
 install (TARGETS
-    algovi_test
+    algovi_generate
     RUNTIME DESTINATION ${BIN_DIR}/bin
     )

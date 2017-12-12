@@ -2,6 +2,7 @@
 #include "filesystem/TempFile.hpp"
 #include "filesystem/FileIO.hpp"
 #include <iostream>
+#include "test_archive/TestFromFile.hpp"
 
 namespace AlgoVi {
 namespace Tester {
@@ -12,7 +13,6 @@ Checker::Checker(Executor::ExecutablePtr exec)
     , m_output_file_delete(false)
 {
     m_result_file = Filesystem::getTempFile(".txt");
-    std::cout << "temp file is " << m_result_file->string() << std::endl;
 }
 
 Checker::~Checker()
@@ -57,7 +57,7 @@ std::int32_t Checker::wait()
     return res;
 }
 
-Checker& Checker::setTest(const TestArchive::Test& test)
+Checker& Checker::setTest(TestArchive::ITest* test)
 {
     if (m_input_file_delete)
     {
@@ -65,9 +65,13 @@ Checker& Checker::setTest(const TestArchive::Test& test)
         m_input_file_delete = false;
     }
 
-    if (test.inputFile())
+    /* TODO : FIX ME*/
+    auto from_file_test = dynamic_cast<TestArchive::TestFromFile*>(test);
+
+    //if (test.inputFile())
+    if (from_file_test != nullptr)
     {
-        m_test_input_file = test.inputFile().get();
+        m_test_input_file = from_file_test->inputFile();
     }
     else
     {
@@ -75,13 +79,14 @@ Checker& Checker::setTest(const TestArchive::Test& test)
         {
             m_test_input_file = Filesystem::getTempFile(".dat");
         }
-        Filesystem::writeToFile(*m_test_input_file, test.input());
+        Filesystem::writeToFile(*m_test_input_file, test->input());
         m_input_file_delete = true;
     }
 
-    if (test.outputFile())
+    //if (test.outputFile())
+    if (from_file_test != nullptr)
     {
-        m_test_output_file = test.outputFile();
+        m_test_output_file = from_file_test->outputFile();
     }
     else
     {
@@ -89,7 +94,7 @@ Checker& Checker::setTest(const TestArchive::Test& test)
         {
             m_test_output_file = Filesystem::getTempFile(".res");
         }
-        Filesystem::writeToFile(*m_test_output_file, test.output());
+        Filesystem::writeToFile(*m_test_output_file, test->output());
         m_output_file_delete = true;
     }
     return *this;

@@ -2,7 +2,7 @@
 
 #include "executor/Executor.hpp"
 #include "tester/Checker.hpp"
-#include "test_archive/Test.hpp"
+#include "test_archive/ITest.hpp"
 
 namespace AlgoVi {
 namespace Tester {
@@ -35,7 +35,7 @@ public:
     Tester(ExecutorPtr program, CheckerPtr checker = CheckerPtr());
 
     void setTimeLimit(std::uint64_t milliseconds);
-    void setTest(const TestArchive::Test& test);
+    void setTest(TestArchive::ITest* test);
 
     ResultPair test(bool save_output = false);
     ResultPair getResult() const;
@@ -43,7 +43,7 @@ public:
 private:
     ExecutorPtr m_program;
     CheckerPtr m_checker;
-    TestArchive::Test m_test;
+    TestArchive::ITest* m_test;
     std::uint64_t m_time_limit;
 };
 

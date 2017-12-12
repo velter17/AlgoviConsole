@@ -11,6 +11,7 @@ add_executable( algovi_test_init init.cpp)
 target_link_libraries(algovi_test_init
     Boost::program_options
     Boost::filesystem
+    common-settings_reader
     )
 
 install (TARGETS

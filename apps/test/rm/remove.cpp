@@ -7,6 +7,7 @@
 #include "settings_reader/Settings.hpp"
 
 using namespace AlgoVi;
+namespace po = boost::program_options;
 
 std::vector<std::string> split(const std::string& s)
 {
@@ -88,6 +89,28 @@ std::vector<std::size_t> parseRange(const std::string& s)
 
 int main(int argc, char** argv) try
 {
+    po::options_description desc("Algovi tester");
+    desc.add_options()
+        ("help,h", "help message")
+        ("all,a", "remove all")
+        ("test,t", po::value<std::string>(), "tests to remove");
+
+    po::variables_map vm;
+    try
+    {
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+        po::notify(vm);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+
     SettingsReader::CSettings settings(boost::filesystem::current_path() / ".settings.ini");
     if (settings.get<std::string>("test_folder") != "tests")
     {
@@ -97,50 +120,41 @@ int main(int argc, char** argv) try
 
     TestArchive::TestArchive archive(
         boost::filesystem::current_path() / settings.get<std::string>("test_folder"));
-    if (archive.size() == 0)
-    {
-        std::cout << "Test archive is empty\n";
-        return 1;
-    }
 
-    std::vector<std::size_t> to_print;
-    if (argc > 1)
+    std::vector<std::size_t> to_remove;
+    if (vm.count("all"))
     {
-        to_print = parseRange(argv[1]);
-        auto itr = std::find_if_not(to_print.begin(), to_print.end(), [&](const std::size_t i) {
-            return i <= archive.size() && i > 0;
-        });
-        if (itr != to_print.end())
+        for(std::size_t i = 0; i < archive.size(); ++i)
         {
-            throw std::runtime_error("Wrong test to print: " + std::to_string(*itr));
+            to_remove.push_back(i + 1);
         }
+    }
+    else if(vm.count("test"))
+    {
+        to_remove = parseRange(vm["test"].as<std::string>());
     }
     else
     {
-        to_print.resize(archive.size());
-        std::iota(to_print.begin(), to_print.end(), 1);
+        std::cout << " [ Error ] You didn't specify any tests" << std::endl;
+        return 1;
     }
 
-    for (auto t : to_print)
+    std::sort(to_remove.begin(), to_remove.end());
+    to_remove.resize(std::unique(to_remove.begin(), to_remove.end()) - to_remove.begin());
+
+    auto itr = std::find_if_not(to_remove.begin(), to_remove.end(), [&](const std::size_t i) {
+        return i <= archive.size() && i > 0;
+    });
+    if (itr != to_remove.end())
     {
-        std::vector<Utils::Cell> head = {
-            Utils::Cell().setData({std::to_string(t)}),
-            Utils::Cell()
-                .setAlign(Utils::EAlign::Center)
-                .setColor(termcolor::cyan)
-                .setData({"input"}),
-            Utils::Cell()
-                .setAlign(Utils::EAlign::Center)
-                .setColor(termcolor::green)
-                .setData({"output"}),
-        };
-        std::cout << Utils::getTable(
-            Utils::Table{head,
-                         {Utils::Cell(),
-                          Utils::Cell().setData(split(archive[t - 1].input())),
-                          Utils::Cell().setData(split(archive[t - 1].output()))}},
-            termcolor::white);
+        throw std::runtime_error("Wrong test to remove: " + std::to_string(*itr));
     }
+
+    for (auto t : to_remove)
+    {
+        archive[t - 1].remove();
+    }
+
     return 0;
 }
 catch (const std::exception& e)

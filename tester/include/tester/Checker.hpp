@@ -1,7 +1,7 @@
 #pragma once
 
 #include "executor/Executor.hpp"
-#include "test_archive/Test.hpp"
+#include "test_archive/ITest.hpp"
 
 namespace AlgoVi {
 namespace Tester {
@@ -15,7 +15,7 @@ public:
     void execute() override;
     std::int32_t wait() override;
 
-    Checker& setTest(const TestArchive::Test& test);
+    Checker& setTest(TestArchive::ITest* test);
     Checker& setOutput(const std::string& output);
 
 private:
