@@ -51,6 +51,16 @@ public:
         return Point_(x() - other.x(), y() - other.y());
     }
 
+    Point_ operator/(const double v) const
+    {
+        return Point_(x() / v, y() / v);
+    }
+
+    Point_ operator*(const double v) const
+    {
+        return Point_(x() * v, y() * v);
+    }
+
 private:
     T m_x;
     T m_y;

@@ -8,6 +8,8 @@ target_link_libraries(algovi_generate
     Boost::program_options
     Boost::filesystem
     test_archive
+    compiler
+    executor
     common-output_utils
     common-settings_reader
     )

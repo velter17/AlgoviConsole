@@ -152,7 +152,7 @@ int main(int argc, char** argv) try
 
     for (auto t : to_remove)
     {
-        archive[t - 1].remove();
+        archive.remove(t);
     }
 
     return 0;

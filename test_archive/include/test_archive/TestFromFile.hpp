@@ -21,8 +21,8 @@ public:
         const boost::filesystem::path& output_file,
         ETestType type = ETestType::ReadFromFiles);
 
-    const std::string& input() override;
-    const std::string& output() override;
+    const std::string& input() const override;
+    const std::string& output() const override;
 
     boost::filesystem::path inputFile();
     boost::filesystem::path outputFile();

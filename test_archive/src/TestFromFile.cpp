@@ -20,12 +20,12 @@ TestFromFile::TestFromFile(
     }
 }
 
-const std::string& TestFromFile::input()
+const std::string& TestFromFile::input() const 
 {
     return m_input;
 }
 
-const std::string& TestFromFile::output()
+const std::string& TestFromFile::output() const
 {
     return m_output;
 }

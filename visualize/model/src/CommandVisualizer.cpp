@@ -140,6 +140,22 @@ CCommandVisualizer::VizFunc CCommandVisualizer::parseCmd(const std::string& s)
             };
         }
     }
+    else if (cmd == "text")
+    {
+        double x, y;
+        stream >> x >> y;
+        std::string s;
+        QString msg;
+        stream >> s;
+        while(true)
+        {
+            stream >> s;
+            if (s == "]")
+                break;
+            msg += " " + QString::fromStdString(s);
+        }
+        return [msg, x, y](QPainter* painter) { painter->drawText(int(x), int(y), msg);};
+    }
 }
 
 } // namespace Visual

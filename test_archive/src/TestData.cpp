@@ -9,12 +9,12 @@ TestData::TestData(const std::string& input, const std::string& output)
 {
 }
 
-const std::string& TestData::input()
+const std::string& TestData::input() const
 {
     return m_input;
 }
 
-const std::string& TestData::output()
+const std::string& TestData::output() const
 {
     return m_output;
 }

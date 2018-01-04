@@ -1,7 +1,11 @@
 #include "test_archive/TestArchive.hpp"
 #include <map>
 #include <algorithm>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 #include "filesystem/FSNavigation.hpp"
+#include "filesystem/FileIO.hpp"
 
 namespace AlgoVi {
 namespace TestArchive {
@@ -12,6 +16,7 @@ TestArchive::TestArchive(const std::vector<Test>& tests)
 }
 
 TestArchive::TestArchive(const boost::filesystem::path& test_folder)
+    : m_test_folder(test_folder)
 {
     auto files = Filesystem::fileList(test_folder);
     std::map<
@@ -47,6 +52,11 @@ TestArchive::TestArchive(const boost::filesystem::path& test_folder)
     }
 }
 
+TestArchive::~TestArchive()
+{
+    shrink();
+}
+
 const Test& TestArchive::operator[](std::size_t i) const
 {
     return m_tests[i];
@@ -60,6 +70,24 @@ Test& TestArchive::operator[](std::size_t i)
 std::size_t TestArchive::size() const
 {
     return m_tests.size();
+}
+
+void TestArchive::append(const ITest& test)
+{
+    std::stringstream stream;
+    stream << std::setw(3) << std::setfill('0') << size() + 1;
+
+    auto input_file = m_test_folder / (std::string(stream.str()) + ".dat");
+    auto output_file = m_test_folder / (std::string(stream.str()) + ".ans");
+    Filesystem::writeToFile(input_file, test.input());
+    Filesystem::writeToFile(output_file, test.output());
+    m_tests.emplace_back(input_file, output_file);
+}
+
+void TestArchive::remove(std::size_t idx)
+{
+    std::cout << "remove " << idx << std::endl;
+    m_removed_list.push_back(idx);
 }
 
 void TestArchive::clear()
@@ -80,6 +108,10 @@ void TestArchive::shrink()
     }
 
     std::sort(m_removed_list.begin(), m_removed_list.end());
+    for (auto t : m_removed_list)
+    {
+        std::cout << t << "\n";
+    }
 
     std::vector<Test> new_tests;
     std::size_t j = 0;
@@ -94,7 +126,7 @@ void TestArchive::shrink()
         else
         {
             new_tests.push_back(m_tests[i]);
-            new_tests.back().move(new_tests.size() + 1);
+            new_tests.back().move(new_tests.size());
         }
     }
 

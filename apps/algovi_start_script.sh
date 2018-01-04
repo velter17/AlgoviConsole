@@ -77,6 +77,9 @@ main()
         else
             exec /opt/algovi/bin/algovi_tester ${args[@]:1}
         fi
+    elif [[ ${args[0]} == generate ]]
+    then
+        /opt/algovi/bin/algovi_generate ${args[@]:1}
     fi
 }
 

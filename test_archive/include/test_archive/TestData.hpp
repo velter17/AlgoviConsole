@@ -10,8 +10,8 @@ class TestData : public ITest
 public:
     TestData(const std::string& input, const std::string& output);
 
-    const std::string& input() override;
-    const std::string& output() override;
+    const std::string& input() const override;
+    const std::string& output() const override;
 
 private:
     std::string m_input;

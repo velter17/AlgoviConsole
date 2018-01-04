@@ -16,10 +16,35 @@ void drawCircle(const Point_<T>& p, double radius)
 }
 
 template <typename T>
+void drawEllipse(const Point_<T>& p, double rx, double ry, double angle)
+{
+    std::cout << "ellipse " << p.x() << " " << p.y() << " " << rx << " " << ry << " " << angle
+              << std::endl;
+}
+
+template <typename T>
 void drawLine(const Point_<T>& from, const Point_<T>& to)
 {
     std::cout << "line " << from.x() << " " << from.y() << " " << to.x() << " " << to.y()
               << std::endl;
+}
+
+template <typename T>
+Point_<T> move(const Point_<T>& p, const Vector& vec, double l)
+{
+    return p + vec / length(vec) * l;
+}
+
+template <typename T>
+void drawInfiniteLine(const Point_<T>& from, const Point_<T>& to)
+{
+    drawLine(move(from, Vector_<T>(from, to), 1e3), move(from, Vector_<T>(from, to), -1e3));
+}
+
+template <typename T>
+void drawText(const Point_<T>& p, const std::string& text)
+{
+    std::cout << "text " << p.x() << " " << p.y() << " [ " << text << " ]" << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& stream, const Color_& color)
