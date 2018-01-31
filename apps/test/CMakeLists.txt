@@ -2,7 +2,6 @@ add_subdirectory(create)
 add_subdirectory(init)
 add_subdirectory(status)
 add_subdirectory(print)
-add_subdirectory(visual)
 add_subdirectory(switch)
 add_subdirectory(rm)
 

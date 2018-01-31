@@ -86,7 +86,6 @@ void TestArchive::append(const ITest& test)
 
 void TestArchive::remove(std::size_t idx)
 {
-    std::cout << "remove " << idx << std::endl;
     m_removed_list.push_back(idx);
 }
 
@@ -108,11 +107,6 @@ void TestArchive::shrink()
     }
 
     std::sort(m_removed_list.begin(), m_removed_list.end());
-    for (auto t : m_removed_list)
-    {
-        std::cout << t << "\n";
-    }
-
     std::vector<Test> new_tests;
     std::size_t j = 0;
     for (std::size_t i = 0; i < size(); ++i)

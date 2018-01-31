@@ -89,54 +89,37 @@ std::vector<std::size_t> parseRange(const std::string& s)
 
 int main(int argc, char** argv) try
 {
-    po::options_description desc("Algovi tester");
-    desc.add_options()
-        ("help,h", "help message")
-        ("all,a", "remove all")
-        ("test,t", po::value<std::string>(), "tests to remove");
-
-    po::variables_map vm;
-    try
+    const char* help_message = 
+        "Allowed arguments:\n"
+        " --all [-a]                remove all tests\n"
+        " --test [-t] test_num      remove specific test\n"
+        " --help [-h]               help message\n";
+    if (argc == 1)
     {
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-        if (vm.count("help"))
-        {
-            std::cout << desc << std::endl;
-            return 0;
-        }
-        po::notify(vm);
+        std::cout << " [ ! ] Specify argument. Run with '--help' to see details\n";
+        return 1;
     }
-    catch(const std::exception& e)
+    if (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h"))
     {
-        std::cerr << e.what() << std::endl;
+        std::cout << help_message;
+        return 0;
     }
 
     SettingsReader::CSettings settings(boost::filesystem::current_path() / ".settings.ini");
-    if (settings.get<std::string>("test_folder") != "tests")
-    {
-        std::cout << " [ ! ] Your test directory is '" << settings.get<std::string>("test_folder")
-                  << "'" << std::endl;
-    }
-
     TestArchive::TestArchive archive(
         boost::filesystem::current_path() / settings.get<std::string>("test_folder"));
 
     std::vector<std::size_t> to_remove;
-    if (vm.count("all"))
+    if (!strcmp(argv[1], "--all") || !strcmp(argv[1], "-a"))
     {
         for(std::size_t i = 0; i < archive.size(); ++i)
         {
             to_remove.push_back(i + 1);
         }
     }
-    else if(vm.count("test"))
-    {
-        to_remove = parseRange(vm["test"].as<std::string>());
-    }
     else
     {
-        std::cout << " [ Error ] You didn't specify any tests" << std::endl;
-        return 1;
+        to_remove = parseRange(argv[1]);
     }
 
     std::sort(to_remove.begin(), to_remove.end());
@@ -152,7 +135,7 @@ int main(int argc, char** argv) try
 
     for (auto t : to_remove)
     {
-        archive.remove(t);
+        archive.remove(t - 1);
     }
 
     return 0;

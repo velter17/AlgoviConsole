@@ -42,9 +42,6 @@ main()
         if (( ${arg_size} < 2 ))
         then
             /opt/algovi/bin/algovi_test
-        elif [[ ${args[1]} == visual ]]
-        then
-            /opt/algovi/bin/algovi_test_visual ${args[@]:2}
         elif [[ ${args[1]} == switch ]]
         then
             /opt/algovi/bin/algovi_test_switch ${args[@]:2}
@@ -66,17 +63,7 @@ main()
         fi
     elif [[ ${args[0]} == tester ]]
     then
-        tmp="none"
-        if (( ${arg_size} > 1 ))
-        then
-            tmp=${args[1]}
-        fi
-        if [[ ${tmp} == visual ]]
-        then
-            exec /opt/algovi/bin/algovi_tester_visual ${args[@]:2}
-        else
-            exec /opt/algovi/bin/algovi_tester ${args[@]:1}
-        fi
+        exec /opt/algovi/bin/algovi_tester ${args[@]:1}
     elif [[ ${args[0]} == generate ]]
     then
         /opt/algovi/bin/algovi_generate ${args[@]:1}
