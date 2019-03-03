@@ -4,7 +4,7 @@ _algovi_complete()
     cur="${COMP_WORDS[COMP_CWORD]}"
     if [[ $COMP_CWORD == 1 ]]
     then
-        options="test tester help generate"
+        options="test tester help generate validate"
         COMPREPLY=($(compgen -W "${options}" -- ${cur}))
     elif [[ $COMP_CWORD == 2 ]]
     then

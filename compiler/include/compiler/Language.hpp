@@ -6,6 +6,9 @@ namespace Compiler {
 enum class ELanguage
 {
     CPP,
+    JAVA,
+    PYTHON,
+    PYTHON3,
     BINARY,
     SYSTEM,
 

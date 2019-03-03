@@ -12,6 +12,7 @@ set (CMAKE_CXX_STANDARD 11)
 set ( TESTER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Tester.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Checker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Validator.cpp
     )
 
 add_library (${PROJECT_NAME}

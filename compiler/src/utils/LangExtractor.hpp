@@ -13,6 +13,8 @@ inline ELanguage extractLang(const boost::filesystem::path& file_path)
 {
     static std::map<std::string, ELanguage> s_map = {
         {".cpp", ELanguage::CPP},
+        {".py", ELanguage::PYTHON3},
+        {".java", ELanguage::JAVA},
         {".sys", ELanguage::SYSTEM},
     };
 

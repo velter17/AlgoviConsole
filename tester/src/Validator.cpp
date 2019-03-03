@@ -1,4 +1,4 @@
-#include "tester/Checker.hpp"
+#include "tester/Validator.hpp"
 #include "filesystem/TempFile.hpp"
 #include "filesystem/FileIO.hpp"
 #include <iostream>
@@ -7,7 +7,7 @@
 namespace AlgoVi {
 namespace Tester {
 
-Checker::Checker(Executor::ExecutablePtr exec)
+Validator::Validator(Executor::ExecutablePtr exec)
     : Executor::Executor(exec)
     , m_input_file_delete(false)
     , m_output_file_delete(false)
@@ -15,7 +15,7 @@ Checker::Checker(Executor::ExecutablePtr exec)
     m_result_file = Filesystem::getTempFile(".txt");
 }
 
-Checker::~Checker()
+Validator::~Validator()
 {
     /*if (m_input_file_delete)
     {
@@ -32,21 +32,19 @@ Checker::~Checker()
     boost::filesystem::remove(*m_result_file);*/
 }
 
-void Checker::execute()
+void Validator::execute()
 {
     assert("No executable" && m_executable);
     assert("No test_input file" && m_test_input_file);
     assert("No test_output file" && m_test_output_file);
-    assert("No output file" && m_output_file);
     m_executable->setArgs({m_test_input_file->string(),
                            m_test_output_file->string(),
-                           m_output_file->string(),
                            m_result_file->string()});
 
     Executor::execute();
 }
 
-std::int32_t Checker::wait()
+std::int32_t Validator::wait()
 {
     auto res = Executor::wait();
     if (m_output.empty())
@@ -57,7 +55,7 @@ std::int32_t Checker::wait()
     return res;
 }
 
-Checker& Checker::setTest(TestArchive::ITest* test)
+Validator& Validator::setTest(TestArchive::ITest* test)
 {
     if (m_input_file_delete)
     {
@@ -97,13 +95,6 @@ Checker& Checker::setTest(TestArchive::ITest* test)
         Filesystem::writeToFile(*m_test_output_file, test->output());
         m_output_file_delete = true;
     }
-    return *this;
-}
-
-Checker& Checker::setOutput(const std::string& output)
-{
-    m_output_file = Filesystem::getTempFile(".out");
-    Filesystem::writeToFile(*m_output_file, output);
     return *this;
 }
 

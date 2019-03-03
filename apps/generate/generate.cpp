@@ -148,13 +148,16 @@ int main(int argc, char** argv) try
                 }
                 archive.clear();
             }
+            else
+            {
+                //
+            }
         }
         else
         {
             std::cout << " [ Canceled ] " << std::endl;
             return 0;
         }
-        return 1;
     }
 
     auto code_executable = Compiler::Compiler(Compiler::SourceCode(code_path)).compile();

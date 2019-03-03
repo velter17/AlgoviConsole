@@ -66,6 +66,7 @@ void ExecutorImpl::run()
         m_process,
         static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
         [this](QProcess::ProcessError err) {
+            std::cout << "error occured" << std::endl;
             m_timer.stop();
             emit finished(1, -1);
         });

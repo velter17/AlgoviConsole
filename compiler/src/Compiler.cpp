@@ -3,6 +3,7 @@
 #include "executor/Executor.hpp"
 #include "filesystem/TempFile.hpp"
 #include "utils/LangExtractor.hpp"
+#include <thread>
 
 namespace AlgoVi {
 namespace Compiler {
@@ -27,12 +28,29 @@ std::shared_ptr<Executable> getExecutable<ELanguage::CPP>(const path& code_path,
 }
 
 template <>
+std::shared_ptr<Executable> getExecutable<ELanguage::JAVA>(const path& code_path, const path& exec)
+{
+    return std::make_shared<Executable>(
+        std::move(Executable()
+                      .setFile("javac")
+                      .setArgs({code_path.string()})));
+}
+
+template <>
 std::shared_ptr<Executable> getExecutable<ELanguage::BINARY>(
     const path& code_path,
     const path& exec)
 {
     (void)exec;
     return std::make_shared<Executable>(code_path);
+}
+
+std::shared_ptr<Executable> getExecutableWithArgs(
+    const path& exec,
+    const std::vector<std::string>& args)
+{
+    return std::make_shared<Executable>(
+            std::move(Executable().setFile(exec).setArgs(args).deleteAfter(false)));
 }
 
 Compiler::Compiler(const SourceCode& code)
@@ -53,7 +71,7 @@ std::shared_ptr<Executable> Compiler::compile()
         m_code.update();
         return getExecutable<ELanguage::BINARY>(m_code.getFilePath(), boost::filesystem::path());
     }
-    else
+    else if (lang == ELanguage::CPP)
     {
         auto bin_path = Filesystem::getTempFile("");
         auto compiler = getExecutable<ELanguage::CPP>(m_code.getFilePath(), bin_path);
@@ -72,6 +90,31 @@ std::shared_ptr<Executable> Compiler::compile()
             throw CompilationError(m_code.getFilePath().string(), compiler_exec.getError());
         }
     }
+    else if (lang == ELanguage::JAVA)
+    {
+        auto bin_path = m_code.getFilePath().stem();
+        auto compiler = getExecutable<ELanguage::JAVA>(m_code.getFilePath(), bin_path);
+        Executor::Executor compiler_exec(compiler);
+        compiler_exec.execute();
+        auto res = compiler_exec.wait();
+        if (res == 0)
+        {
+            auto ret = getExecutableWithArgs(path("/usr/bin/java"), {bin_path.string()});
+            m_code.update();
+            return ret;
+        }
+        else
+        {
+            throw CompilationError(m_code.getFilePath().string(), compiler_exec.getError());
+        }
+    }
+    else if (lang == ELanguage::PYTHON3)
+    {
+        m_code.update();
+        return getExecutableWithArgs("/usr/bin/python3", {m_code.getFilePath().string()});
+    }
+    else
+    {}
 }
 
 } // namespace Compiler

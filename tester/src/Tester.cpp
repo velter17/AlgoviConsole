@@ -25,7 +25,10 @@ Tester::ResultPair Tester::test(bool save_output)
     assert("Program is nullptr" && m_program != nullptr);
     assert("No test" && m_test);
     m_program->setInput(m_test->input());
-    m_program->setTimeLimit(m_time_limit);
+    if (m_time_limit != 0)
+    {
+        m_program->setTimeLimit(m_time_limit);
+    }
     m_program->execute();
     auto program_exit_code = m_program->wait();
     if (program_exit_code == 0)

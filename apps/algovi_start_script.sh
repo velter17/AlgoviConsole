@@ -67,6 +67,9 @@ main()
     elif [[ ${args[0]} == generate ]]
     then
         /opt/algovi/bin/algovi_generate ${args[@]:1}
+    elif [[ ${args[0]} == validate ]]
+    then
+        /opt/algovi/bin/algovi_validate ${args[@]:1}
     fi
 }
 

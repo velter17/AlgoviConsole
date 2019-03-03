@@ -301,7 +301,7 @@ int main(int argc, char** argv) try
                             {Utils::Cell(),
                              Utils::Cell().setData(split(tests[tests_to_test[i] - 1].input())),
                              Utils::Cell().setData(split(tests[tests_to_test[i] - 1].output())),
-                             Utils::Cell().setData(split(*result.output))},
+                             Utils::Cell().setData(split(result.output ? *result.output : ""))},
                             {Utils::Cell().setData({"Time:"}).setCollspan(2).setColor(
                                  termcolor::bwhite),
                              Utils::Cell()
