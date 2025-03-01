@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <boost/signals2/signal.hpp>
 #include "compiler/Executable.hpp"
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "compiler/SourceCode.hpp"
 #include "compiler/Executable.hpp"
 

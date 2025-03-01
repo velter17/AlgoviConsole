@@ -39,6 +39,11 @@ cmakeArgs = [
     '-DCMAKE_BUILD_TYPE=' + buildType,
     '-DCMAKE_INSTALL_PREFIX=' + installPath,
     '-DBIN_DIR=' + installPath,
+    '-DBOOST_ROOT=/opt/boost/1.62.0',
+    '-DBoost_NO_SYSTEM_PATHS=ON',
+    '-DBoost_INCLUDE_DIR=/opt/boost/1.62.0/include',
+    '-DBoost_LIBRARY_DIR=/opt/boost/1.62.0/lib',
+    '-DBoost_DEBUG=ON'
     #'-DBLA_TARGET_SYSTEM=' + args.target,
 ]
 
@@ -65,7 +70,7 @@ try:
 except:
     pass
 
-print "execute cmake: " + str(cmakeArgs)
+print("execute cmake: " + str(cmakeArgs))
 if subprocess.call(cmakeArgs, cwd=buildPath) != 0:
     print("Failed to run cmake: " + repr(cmakeArgs))
     sys.exit(1)
